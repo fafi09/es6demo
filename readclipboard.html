@@ -1,0 +1,107 @@
+<html>
+<head>
+    <title>读取剪贴板内容</title>
+
+    <script type="text/javascript">
+        var InitFunc = function() {
+            alert("initfunc");
+        }
+        function getClipboard() {
+            if (window.clipboardData) {
+                return (window.clipboardData.getData('Text'));
+            }
+            else if (window.netscape) {
+                netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+                var clip = Components.classes['@mozilla.org/widget/clipboard;1'].createInstance(Components.interfaces.nsIClipboard);
+                if (!clip) return;
+                var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable);
+                if (!trans) return;
+                trans.addDataFlavor('text/unicode');
+                clip.getData(trans, clip.kGlobalClipboard);
+                var str = new Object();
+                var len = new Object();
+                try {
+                    trans.getTransferData('text/unicode', str, len);
+                }
+                catch (error) {
+                    return null;
+                }
+                if (str) {
+                    if (Components.interfaces.nsISupportsWString) str = str.value.QueryInterface(Components.interfaces.nsISupportsWString);
+                    else if (Components.interfaces.nsISupportsString) str = str.value.QueryInterface(Components.interfaces.nsISupportsString);
+                    else str = null;
+                }
+                if (str) {
+                    return (str.data.substring(0, len.value / 2));
+                }
+            }
+            return null;
+        }
+        function readClipboardData() {
+            var str = getClipboard();
+            var len = str.split("\n");//获取行数
+
+            alert(len.length);
+            
+						document.write(str.split('\t')[0]);
+						document.write("<br />");
+						document.write(len);
+            document.getElementById("txtContent").value = str;
+        }
+
+				function onPaste() {
+					//alert('paste');
+					var str = getClipboard();
+          var rows = str.split("\n");//获取行数
+          var line = new Array();
+          for(var i = 0; i < rows.length; i++)
+          {
+          	var cols = rows[i].split('\t');
+          	for(var j = 0; j < cols.length; j++) {
+          		line.push(cols[j]);
+          	}
+          	
+          }
+					//alert(line.length);
+					var inputs = document.getElementsByTagName("input");
+					//alert(inputs.length);
+					var sw = 1;
+					var findIdx = 0;
+					var k = 0;
+					for(var i = 0; i < inputs.length; i++) {
+						if(inputs[i].id == document.activeElement.id) {
+							sw = 2;
+							findIdx = i;
+						}
+						if( line.length >= k-findIdx+1 && sw == 2 && inputs[i].disabled == false) {
+							inputs[i].value = line[k-findIdx];
+						}
+						if(inputs[i].disabled == false) {
+							k++;
+						}
+					}
+					return false;
+				}
+				
+				function onPaste2() {
+					return false;
+				}
+    </script>
+
+</head>
+<body >
+    <!--<input type="button" value="读取剪贴板内容" onclick="readClipboardData();" />
+    <br />
+    <textarea rows="20" cols="60" id="txtContent"></textarea>-->
+    <input id="c1" type="text" onpaste="onPaste();return false;"/>
+    <input id="c2" type="text" onpaste="onPaste();return false;"/>
+    <input id="c3" type="text" onpaste="onPaste();return false;"/>
+    <input id="c4" type="text" onpaste="onPaste();return false;"/>
+    <br />
+    <input id="c5" type="text" onpaste="onPaste();return false;"/>
+    <input id="c6" type="text" onpaste="onPaste();return false;"/>
+    <input id="c7" type="text" onpaste="onPaste();return false;" disabled=""/>
+    <input id="c8" type="text" onpaste="onPaste();return false;"/>
+    <input id="c9" type="text" onpaste="onPaste();return false;"/>
+</body>
+</html>

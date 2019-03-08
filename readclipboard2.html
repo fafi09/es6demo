@@ -1,0 +1,149 @@
+<html>
+	<head>
+		<title>读取剪贴板内容</title>
+
+		<script type="text/javascript">
+
+			function keyDown() {
+				var inputs = this.getElementsByTagName("input");
+				var focus = document.activeElement;
+				var cols = this.colNum;
+
+				var flag = -1;
+
+				//得到激活控件在组合中的具体位置
+				for (var i = 0; i < inputs.length; i++) {
+					if (inputs[i] === focus) {
+						break;
+					}
+				}
+
+				var keyCode = event.keyCode;
+				var ctrlCode = event.ctrlKey;
+
+				if (ctrlCode && keyCode == 38) {
+					//向上
+					var j = i - cols;
+					var flag = false;
+					if (j < 0) {
+						return;
+					}
+					if (inputs[j].disabled == false) {//判断接下来得到的焦点控件是否能够使用
+						flag = true;
+					} else {
+						if (i - cols*2 < 0) {
+							return;
+						}
+						for ( j = i - cols*2; j >= 0; j = j - cols) {//之后控件不能获得焦点情况下寻找下一个控件
+							if (inputs[j].disabled == false) {//判断之后焦点是否可以获取焦点
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (flag) {
+						inputs[j].focus();
+					}
+				} else if (ctrlCode && keyCode == 40) {
+					//向下
+					var j = i + cols;
+					var flag = false;
+					if (j >= inputs.length) {
+						return;
+					}
+					if (inputs[j].disabled == false) {//判断接下来得到的焦点控件是否能够使用
+						flag = true;
+					} else {
+						if (i + cols*2 >= inputs.length) {
+							return;
+						}
+						for ( j = i + cols*2; j < inputs.length; j = j + cols) {//之后控件不能获得焦点情况下寻找下一个控件
+							if (inputs[j].disabled == false) {//判断之后焦点是否可以获取焦点
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (flag) {
+						inputs[j].focus();
+					}
+				} else if (ctrlCode && keyCode == 37) {
+					//向左
+					var j = i - 1;
+					var flag = false;
+					if (j < 0) {
+						return;
+					}
+					if (inputs[j].disabled == false) {//判断接下来得到的焦点控件是否能够使用
+						flag = true;
+					} else {
+						if (i - 2 < 0) {
+							return;
+						}
+						for ( j = i - 2; j >= 0; j = j - 1) {//之后控件不能获得焦点情况下寻找下一个控件
+							if (inputs[j].disabled == false) {//判断之后焦点是否可以获取焦点
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (flag) {
+						inputs[j].focus();
+					}
+				} else if (ctrlCode && keyCode == 39) {
+					//向右
+					var j = i + 1;
+					var flag = false;
+					if (j >= inputs.length) {
+						return;
+					}
+					if (inputs[j].disabled == false) {//判断接下来得到的焦点控件是否能够使用
+						flag = true;
+					} else {
+						if (i + 2 >= inputs.length) {
+							return;
+						}
+						for ( j = i + 2; j < inputs.length; j = j + 1) {//之后控件不能获得焦点情况下寻找下一个控件
+							if (inputs[j].disabled == false) {//判断之后焦点是否可以获取焦点
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (flag) {
+						inputs[j].focus();
+					}
+				}
+
+			}
+
+			window.onload = function() {
+				var target = document.getElementById("container");
+				target.colNum = 4;
+				target.onkeydown = keyDown;
+			}
+		</script>
+
+	</head>
+	<body>
+		<input type="button" value="读取内容" onclick="readClipboardData();" />
+		<br />
+		<!--<textarea rows="20" cols="60" id="txtContent"></textarea>-->
+		<div id="container">
+		<input id="c1" type="text" />
+		<input id="c2" type="text" />
+		<input id="c3" type="text" />
+		<input id="c4" type="text" />
+		<br />
+		<input id="c5" type="text" />
+		<input id="c6" type="text" />
+		<input id="c7" type="text"  disabled=""/>
+		<input id="c8" type="text" />
+		<br />
+		<input id="c9" type="text" />
+		<input id="c10" type="text" />
+		<input id="c11" type="text"  disabled=""/>
+		<input id="c12" type="text" />
+		</div>
+	</body>
+</html>

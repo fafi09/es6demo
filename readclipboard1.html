@@ -1,0 +1,272 @@
+<html>
+	<head>
+		<title>读取剪贴板内容</title>
+
+		<script type="text/javascript">
+			if (window.attachEvent)//IE:如果浏览器中存在window.attachEvent函数则使用window.attachEvent函数,判断是否是IE还可以使用:if (document.all){//..}
+				window.attachEvent("onload", function() {
+					document.onkeydown = keyDown;
+					var inputs = document.getElementsByTagName("input");
+					for(var i = 0; i < inputs.length; i++ ) {
+						inputs[i].onpaste = onPaste;
+					}
+					var body = document.getElementsByTagName("body");
+					body.onpaste = "return false;";
+				});
+			else//FireFox
+				window.addEventListener("load", function() {
+					alert("请使用IE浏览器");
+				}, true);
+				
+			function getClipboard() {
+				if (window.clipboardData) {
+					return (window.clipboardData.getData('Text'));
+				} else if (window.netscape) {
+					netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+					var clip = Components.classes['@mozilla.org/widget/clipboard;1'].createInstance(Components.interfaces.nsIClipboard);
+					if (!clip)
+						return;
+					var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable);
+					if (!trans)
+						return;
+					trans.addDataFlavor('text/unicode');
+					clip.getData(trans, clip.kGlobalClipboard);
+					var str = new Object();
+					var len = new Object();
+					try {
+						trans.getTransferData('text/unicode', str, len);
+					} catch (error) {
+						return null;
+					}
+					if (str) {
+						if (Components.interfaces.nsISupportsWString)
+							str = str.value.QueryInterface(Components.interfaces.nsISupportsWString);
+						else if (Components.interfaces.nsISupportsString)
+							str = str.value.QueryInterface(Components.interfaces.nsISupportsString);
+						else
+							str = null;
+					}
+					if (str) {
+						return (str.data.substring(0, len.value / 2));
+					}
+				}
+				return null;
+			}
+
+			function readClipboardData() {
+				var str = getClipboard();
+				var strLen = str.length;
+				var lastIdx = str.lastIndexOf("\r\n");
+				
+				alert(str.length);
+				alert(str.lastIndexOf("\r\n"));
+				
+				if( (strLen - 2) == lastIdx ) {
+					alert(str.substr(0, lastIdx));
+				}
+				
+				var len;
+				if(str.indexOf("\r") != -1) {
+					len = str.split("\r\n");
+				} else {
+					len = str.split("\n");
+				}
+				//获取行数
+
+				alert(len.length);
+
+				document.write(str.split('\t')[0]);
+				document.write("<br />");
+				document.write(len);
+				//document.getElementById("txtContent").value = str;
+			}
+
+			function onPaste() {
+				//alert('paste');
+				var str = getClipboard();
+				
+				var strLen = str.length;
+				var lastIdx = str.lastIndexOf("\r\n");
+				if( (strLen - 2) == lastIdx ) {
+					str = str.substr(0, lastIdx);
+				}
+				
+				var rows;
+				if( str.indexOf("\r") != -1) {
+					rows = str.split("\r\n");
+				} else {
+					rows = str.split("\n");
+				} 
+				//获取行数
+				var line = new Array();
+				for (var i = 0; i < rows.length; i++) {
+					var cols = rows[i].split('\t');
+					for (var j = 0; j < cols.length; j++) {
+						line.push(cols[j]);
+					}
+
+				}
+				//alert(line.length);
+				var inputs = document.getElementsByTagName("input");
+				//alert(inputs.length);
+				var sw = 1;
+				var findIdx = 0;
+
+				//查找到有焦点的控件索引
+				for (var i = 0; i < inputs.length; i++) {
+					if (inputs[i].id == document.activeElement.id) {
+						findIdx = i;
+					}
+				}
+
+				var k = 0;
+				for (var i = findIdx; i < inputs.length; i++) {
+					if (line.length > k && inputs[i].disabled == false) {
+						inputs[i].value = line[k];
+					}
+					if (inputs[i].disabled == false) {
+						k++;
+					}
+				}
+				return false;
+			}
+
+			function onPaste2() {
+				return false;
+			}
+
+			function keyDown() {
+				var inputs = document.getElementsByTagName("input");
+				var focus = document.activeElement;
+
+				var flag = -1;
+
+				//得到激活控件在组合中的具体位置
+				for (var i = 0; i < inputs.length; i++) {
+					if (inputs[i] === focus) {
+						break;
+					}
+				}
+
+				var keyCode = event.keyCode;
+				var ctrlCode = event.ctrlKey;
+
+				if (ctrlCode && keyCode == 38) {
+					//向上
+					var j = i - 4;
+					var flag = false;
+					if (j < 0) {
+						return;
+					}
+					if (inputs[j].disabled == false) {//判断接下来得到的焦点控件是否能够使用
+						flag = true;
+					} else {
+						if (i - 8 < 0) {
+							return;
+						}
+						for ( j = i - 8; j >= 0; j = j - 4) {//之后控件不能获得焦点情况下寻找下一个控件
+							if (inputs[j].disabled == false) {//判断之后焦点是否可以获取焦点
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (flag) {
+						inputs[j].focus();
+					}
+				} else if (ctrlCode && keyCode == 40) {
+					//向下
+					var j = i + 4;
+					var flag = false;
+					if (j >= inputs.length) {
+						return;
+					}
+					if (inputs[j].disabled == false) {//判断接下来得到的焦点控件是否能够使用
+						flag = true;
+					} else {
+						if (i + 8 >= inputs.length) {
+							return;
+						}
+						for ( j = i + 8; j < inputs.length; j = j + 4) {//之后控件不能获得焦点情况下寻找下一个控件
+							if (inputs[j].disabled == false) {//判断之后焦点是否可以获取焦点
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (flag) {
+						inputs[j].focus();
+					}
+				} else if (ctrlCode && keyCode == 37) {
+					//向左
+					var j = i - 1;
+					var flag = false;
+					if (j < 0) {
+						return;
+					}
+					if (inputs[j].disabled == false) {//判断接下来得到的焦点控件是否能够使用
+						flag = true;
+					} else {
+						if (i - 2 < 0) {
+							return;
+						}
+						for ( j = i - 2; j >= 0; j = j - 1) {//之后控件不能获得焦点情况下寻找下一个控件
+							if (inputs[j].disabled == false) {//判断之后焦点是否可以获取焦点
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (flag) {
+						inputs[j].focus();
+					}
+				} else if (ctrlCode && keyCode == 39) {
+					//向右
+					var j = i + 1;
+					var flag = false;
+					if (j >= inputs.length) {
+						return;
+					}
+					if (inputs[j].disabled == false) {//判断接下来得到的焦点控件是否能够使用
+						flag = true;
+					} else {
+						if (i + 2 >= inputs.length) {
+							return;
+						}
+						for ( j = i + 2; j < inputs.length; j = j + 1) {//之后控件不能获得焦点情况下寻找下一个控件
+							if (inputs[j].disabled == false) {//判断之后焦点是否可以获取焦点
+								flag = true;
+								break;
+							}
+						}
+					}
+					if (flag) {
+						inputs[j].focus();
+					}
+				}
+
+			}
+
+		</script>
+
+	</head>
+	<body>
+		<input type="button" value="读取内容" onclick="readClipboardData();" />
+		<br />
+		<!--<textarea rows="20" cols="60" id="txtContent"></textarea>-->
+		<input id="c1" type="text" />
+		<input id="c2" type="text" />
+		<input id="c3" type="text" />
+		<input id="c4" type="text" />
+		<br />
+		<input id="c5" type="text" />
+		<input id="c6" type="text" />
+		<input id="c7" type="text"  disabled=""/>
+		<input id="c8" type="text" />
+		<br />
+		<input id="c9" type="text" />
+		<input id="c10" type="text" />
+		<input id="c11" type="text"  disabled=""/>
+		<input id="c12" type="text" />
+	</body>
+</html>
