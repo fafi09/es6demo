@@ -44,15 +44,16 @@ http.createServer(
                 //（2）.使用querystring对url进行反序列化（解析url将&和=拆分成键值对），得到一个对象
                 //querystring是nodejs内置的一个专用于处理url的模块，API只有四个，详情见nodejs官方文档
                 dataObject = querystring.parse(data);
+                var jsonObject = JSON.parse(data);
                 console.log(dataObject);
                 //解决跨域问题
                 res.setHeader("Access-Control-Allow-Origin", "*");
                 res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
                 res.setHeader("Access-Control-Allow-Headers", "Content-Type");
                 res.setHeader("Access-Control-Max-Age", "1800");
-                res.writeHead(200, { 'Content-Type': 'text/html;charset=UTF-8' });
-                console.log('data:'+data);
-                res.end('ok');
+                res.writeHead(200, { 'Content-Type': 'application/json;charset=UTF-8' });
+                console.log('data:'+jsonObject.username + ":" + jsonObject.pass);
+                res.end(data);
             });
         }
         if (req.url === '/test' && req.method === 'GET') {
@@ -73,8 +74,8 @@ http.createServer(
             res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
             res.setHeader("Access-Control-Allow-Headers", "Content-Type");
             res.setHeader("Access-Control-Max-Age", "1800");
-            res.writeHead(200, { 'Content-Type': 'text/html;charset=UTF-8' });
-            res.end('ok');
+            res.writeHead(200, { 'Content-Type': 'application/json;charset=UTF-8' });
+            res.end("{'username':'ok','pass':'ok'}");
         }
     }
 ).listen(8001);
