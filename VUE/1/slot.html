@@ -1,0 +1,23 @@
+<html>
+<head>
+<title>1</title>
+</head>
+<body>
+	<navigation-link url="/profile">
+  Your Profile
+</navigation-link>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+	Vue.component('navigation-link', {
+  props: ['url'],
+  template: '<a
+  v-bind:href="url"
+  class="nav-link"
+>
+  <slot></slot>
+</a>'
+})
+
+</script>
+</html>
