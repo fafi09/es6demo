@@ -36,6 +36,7 @@
       todo 对象是变量，即其内容可以是动态的。
       我们也需要为每个组件提供一个“key”，稍后再
       作详细解释。
+      key的作用主要是为了高效的更新虚拟DOM
     -->
     <todo-item
       v-for="item in groceryList"
@@ -56,12 +57,34 @@
   <!-- 这里的 `foo` 不会更新！ -->
   <button v-on:click="foo = 'baz'">Change it</button>
 </div>
-<div id="demo">{{ fullName }}</div>
+<div id="demo">{{ fullName }} <br/>
+  firstName:<input type="text" v-model="firstName"/><br/>
+  lastName:<input type="text" v-model="lastName"/><br/>
+  fullName:<input type="text" v-model="fullName"/><br/>
+</div>
 
 
-<div id="demo1">{{ fullName }}</div>
+<div id="demo1">{{ fullName }}<br/>
+  firstName:<input type="text" v-model="firstName"/><br/>
+  lastName:<input type="text" v-model="lastName"/><br/>
+  fullName:<input type="text" v-model="fullName"/></div>
 
-
+<div id="slot-1">
+  <ol>
+    <!--
+      现在我们为每个 todo-item 提供 todo 对象
+      todo 对象是变量，即其内容可以是动态的。
+      我们也需要为每个组件提供一个“key”，稍后再
+      作详细解释。
+      key的作用主要是为了高效的更新虚拟DOM
+    -->
+    <navigation-link
+      v-for="item in groceryList"
+      v-bind:todo="item"
+      v-bind:key="item.id"
+    ></navigation-link>
+  </ol>
+</div>
 
 
 
@@ -162,12 +185,13 @@ var vm = new Vue({
   }
 })
 
-var vm = new Vue({
+var vm1 = new Vue({
   el: '#demo1',
   data: {
     firstName: 'Foo1',
     lastName: 'Bar1'
   },
+  //和方法的区别，在getfullname时方法总是执行，而计算属性如果元素不变则不会被调用
   computed: {
     fullName: function () {
       return this.firstName + ' ' + this.lastName
@@ -175,6 +199,24 @@ var vm = new Vue({
   }
 })
 
+var slot1 = new Vue({
+  el: '#slot-1',
+  data: {
+    groceryList: [
+      { id: 0, text: '蔬菜slot' },
+      { id: 1, text: '奶酪slot' },
+      { id: 2, text: '随便其它什么人吃的东西slot' }
+    ]
+  }
+})
+
+Vue.component('navigation-link', {
+  // todo-item 组件现在接受一个
+  // "prop"，类似于一个自定义 attribute。
+  // 这个 prop 名为 todo。
+  props: ['todo'],
+  template: '<li>{{ todo.text }}</li>'
+})
 </script>
 </body>
 </html>

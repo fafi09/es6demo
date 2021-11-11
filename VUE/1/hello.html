@@ -57,10 +57,17 @@
   <!-- 这里的 `foo` 不会更新！ -->
   <button v-on:click="foo = 'baz'">Change it</button>
 </div>
-<div id="demo">{{ fullName }}</div>
+<div id="demo">{{ fullName }} <br/>
+  firstName:<input type="text" v-model="firstName"/><br/>
+  lastName:<input type="text" v-model="lastName"/><br/>
+  fullName:<input type="text" v-model="fullName"/><br/>
+</div>
 
 
-<div id="demo1">{{ fullName }}</div>
+<div id="demo1">{{ fullName }}<br/>
+  firstName:<input type="text" v-model="firstName"/><br/>
+  lastName:<input type="text" v-model="lastName"/><br/>
+  fullName:<input type="text" v-model="fullName"/></div>
 
 
 
@@ -169,12 +176,14 @@ var vm1 = new Vue({
     firstName: 'Foo1',
     lastName: 'Bar1'
   },
+  //和方法的区别，在getfullname时方法总是执行，而计算属性如果元素不变则不会被调用
   computed: {
     fullName: function () {
       return this.firstName + ' ' + this.lastName
     }
   }
 })
+
 
 </script>
 </body>

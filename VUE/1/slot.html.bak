@@ -3,21 +3,58 @@
 <title>1</title>
 </head>
 <body>
-	<navigation-link url="/profile">
+<div id="slot-1">
+<navigation-link url="/profile">
   Your Profile
 </navigation-link>
-</body>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</div>
+<div id="slot-2">
+<navigation-link url="/profile">
+</navigation-link>
+<base-layout>
+  <template v-slot:header>
+    <h1>Here might be a page title</h1>
+  </template>
+
+  <p>A paragraph for the main content.</p>
+  <p>And another one.</p>
+
+  <template v-slot:footer>
+    <p>Here's some contact info</p>
+  </template>
+</base-layout>
+</div>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script>
-	Vue.component('navigation-link', {
+//后备内容{{url}}
+Vue.component('navigation-link', {
   props: ['url'],
-  template: `<a
-  v-bind:href="url"
-  class="nav-link"
->
-  <slot></slot>
-</a>`
+  template: '<a  v-bind:href="url"  >  <slot>{{url}}</slot></a>'
 })
 
+//具名插槽
+Vue.component('base-layout', {
+  props: ['url'],
+  template: '<div class="container">  <header>    <slot name="header"></slot>  </header>  <main>    <slot></slot>  </main>  <footer>    <slot name="footer"></slot>  </footer></div>'
+})
+
+var slot1 = new Vue({
+  el: '#slot-1',
+  data: {
+    name:'slotmsg'
+  }
+})
+var slot2 = new Vue({
+  el: '#slot-2',
+  data: {
+    name:'slotmsg'
+  }
+})
+
+
 </script>
+</body>
+
 </html>
