@@ -24,7 +24,9 @@
     <p>Here's some contact info</p>
   </template>
 </base-layout>
-
+<current-user v-slot:son="slotprops">
+    {{ slotprops.user.firstName }}
+</current-user>
 </div>
 
 
@@ -41,6 +43,22 @@ Vue.component('base-layout', {
   props: ['url'],
   template: '<div class="container">  <header>    <slot name="header"></slot>  </header>  <main>    <slot></slot>  </main>  <footer>    <slot name="footer"></slot>  </footer></div>'
 })
+
+//×÷ÓÃÓò²å²Û
+Vue.component('current-user', {
+  props: ['user1'],
+  template: '<div style="color:red">  <slot name="son" v-bind:user="user">    {{ user.lastName }}  </slot></div>',
+  data: function() {
+  	return {
+    user: {
+    	firstName:'tom',
+    	lastName:'cat'
+    }
+  }
+  }
+})
+
+
 
 var slot1 = new Vue({
   el: '#slot-1',
