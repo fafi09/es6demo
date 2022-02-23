@@ -1,0 +1,388 @@
+<html>
+	<head>
+		<title>test</title>
+
+		<script type="text/javascript">
+		function sleep(interval) {
+		  return new Promise(resolve => {
+			setTimeout(resolve, interval);
+		  })
+		}
+
+		// 用法
+		async function one2FiveInAsync() {
+		  for(let i = 1; i <= 5; i++) {
+			console.log(i);
+			await sleep(1000);
+		  }
+		}
+
+		function testone2FiveInAsync() {
+			one2FiveInAsync();
+		}
+		function searchName(name) {
+			console.log('search:=='+name);
+			return name;
+		}
+		
+		async function searchSynName() {
+			const name1 = await searchName('name1');
+			
+			console.log('==1-2=='+name1);
+			const name2 = await searchName('name2');
+			return name1+'==='+name2;
+		}
+
+		function testasync() {
+			searchSynName().then(function(result) {
+				console.log('==resolve=='+result);
+			});
+		}
+		
+		function testObjectIs() {
+			var people = new People('alen',20);
+			var people1 = new People('alen',20);
+			var person = new Person('tom', 18);
+			let result = Object.is(people, person);
+			console.log('testObjectIs:'+result);
+			let resultq = Object.is(people, people1);
+			console.log('testObjectIs:'+resultq);
+		}
+		
+		
+		
+		//构造函数+原型模式PRO（动态原型模式）
+		function People (name,age){
+			this.name = name;
+			this.age = age;
+
+			if ( typeof this.getName != "function" ) {
+				// 在原型上定义函数
+				People.prototype.getName = function(){
+					return this.name;
+				}
+
+				People.prototype.getAge = function(){
+					return this.age;
+				}
+
+				// 在原型上定义共享的属性
+				People.prototype.school = "NJUPT";   
+			}
+		}
+		
+		function testPeople() {
+			var people = new People('alen',20);
+			console.log(people);
+		}
+		
+		
+		function Person (name,age) {
+			this.name = name;
+			this.age = age;
+			this.getName = function(){
+				return name;
+			}
+		}
+		
+		var person = new Person('tom', 18);
+		function testperson() {
+				console.log(person);
+				console.log('=========');
+				console.log(person.__proto__);
+				console.log('=========');
+				console.log(person.constructor);
+				console.log('=========');
+				//console.log(person.prototype.constructor);
+				console.log(person.constructor.prototype);
+				console.log('=========');
+				//console.log(person.prototype.constructor.prototype);
+		}
+			var funcObj = function() {
+			}
+			
+			function testPrototype() {
+				console.log(funcObj.prototype);
+				console.log('=========');
+				console.log(funcObj.prototype.constructor);
+				console.log('=========');
+				console.log(funcObj.prototype.constructor.prototype);
+			}
+		
+			//闭包练习1
+			var nameb = "The Window";
+
+		　　var objectb = {
+		　　　　nameb : "My Object",
+
+		　　　　getNameFunc : function(){
+		　　　　　　return function(){
+		　　　　　　　　return this.nameb;
+		　　　　　　};
+
+		　　　　}
+
+		　　};
+
+		　　alert(objectb.getNameFunc()());
+		
+			//闭包练习2
+			var namec = "The Window";
+
+		　　var objectc = {
+		　　　　namec : "My Object",
+
+		　　　　getNameFunc : function(){
+		　　　　　　var that = this;
+		　　　　　　return function(){
+		　　　　　　　　return that.namec;
+		　　　　　　};
+
+		　　　　}
+
+		　　};
+
+		　　alert(objectc.getNameFunc()());
+		
+		
+			//闭包 	闭包就是能够读取其他函数内部变量的函数。
+			//如果没有闭包，那么f1中的n就不能被外界读取到，
+			//像下面这样将整个函数f2返回就能访问n的值，就是闭包。
+			function f1(){
+
+		　　　　var n=999;
+
+		　　　　function f2(){
+		　　　　　　alert(n);
+		　　　　}
+
+		　　　　return f2;
+
+		　　}
+
+		　　var result=f1();
+
+		　　result(); // 999
+		
+			//以上为闭包的作用1,作用2为让这些变量的值始终保持在内存中。
+			//原因就在于f1是f2的父函数，而f2被赋给了一个全局变量，这导致f2始终在内存中，而f2的存在依赖于f1，
+			//因此f1也始终在内存中，不会在调用结束后，被垃圾回收机制（garbage collection）回收。
+			//这段代码中另一个值得注意的地方，就是"nAdd=function(){n+=1}"这一行，首先在nAdd前面没有使用var关键字，
+			//因此nAdd是一个全局变量，而不是局部变量。其次，nAdd的值是一个匿名函数（anonymous function），
+			//而这个匿名函数本身也是一个闭包，所以nAdd相当于是一个setter，可以在函数外部对函数内部的局部变量进行操作。
+			function ff1(){
+
+		　　　　var n=999;
+
+		　　　　nAdd=function(){n+=1}
+
+		　　　　function ff2(){
+		　　　　　　alert(n);
+		　　　　}
+
+		　　　　return ff2;
+
+		　　}
+
+		　　var resultf=ff1();
+
+		　　resultf(); // 999
+
+		　　nAdd();
+
+		　　resultf(); // 1000
+			resultf();
+		
+			function testApply() {
+				const ages = [11, 33, 12, 54, 18, 96];
+
+				// 旧写法
+				const youngest = Math.min.apply(Math, ages);
+				const oldest = Math.max.apply(Math, ages);
+				const type = Object.prototype.toString.call(youngest);
+
+				// 新写法
+				//const youngest = Reflect.apply(Math.min, Math, ages);
+				//const oldest = Reflect.apply(Math.max, Math, ages);
+				//const type = Reflect.apply(Object.prototype.toString, youngest, []);
+				
+				console.log(youngest);
+				console.log(oldest);
+				console.log(type);
+			}
+		
+			function testReflect() {
+				let obj = {name:'apple'};
+				var loggedObj = new Proxy(obj, {
+				  get(target, name) {
+					console.log('get-', target, name);
+					return Reflect.get(target, name);
+				  },
+				  deleteProperty(target, name) {
+					console.log('delete' + name);
+					return Reflect.deleteProperty(target, name);
+				  },
+				  has(target, name) {
+					console.log('has' + name);
+					return Reflect.has(target, name);
+				  }
+				});
+				
+				console.log(loggedObj.name);
+			}
+			function SymbolIterator() {
+					const myIterable = {};
+					myIterable[Symbol.iterator] = function* () {
+					  yield 1;
+					  yield 2;
+					  yield 3;
+					};
+
+					console.log([...myIterable]);
+			}			
+			 
+			 
+			function symbolTest() {
+				const obj = {};
+				let a = Symbol('a');
+				let b = Symbol('b');
+
+				obj[a] = 'Hello';
+				obj[b] = 'World';
+
+				const objectSymbols = Object.getOwnPropertySymbols(obj);
+
+				console.log(objectSymbols);
+			}
+			function test33() {
+				alert('343');
+			}
+			
+			function* f() {
+				console.log('执行了！')
+			}
+
+			var generator = f();
+
+			setTimeout(function () {
+			  generator.next()
+			}, 2000);
+			
+		function test() {
+			console.log([1, 2, 3, 4, 5].copyWithin(0, -2, -1));
+			console.log([1, 4, -5, 10].find((n) => n < 0));
+			console.log([1, 5, 10, 15].find(function(value, index, arr) {
+  			return value > 9;
+			}) );
+			console.log([1, 5, 10, 15].findIndex(function(value, index, arr) {
+  			return value > 9;
+			}));
+			
+			function f(v){
+		  	return v > this.age;
+			}
+			let person = {name: 'John', age: 20};
+			console.log([10, 12, 26, 15].find(f, person));    // 26
+
+
+			console.log([NaN].indexOf(NaN));
+// -1
+
+			console.log([1,NaN].findIndex(y => Object.is(NaN, y)));
+
+		}
+		
+		function test1() {
+			var person = {
+  			name: "张三"
+			};
+
+			var proxy = new Proxy(person, {
+  				get: function(target, property) {
+								    if (property in target) {
+								      return target[property];
+								    } else {
+								      throw new ReferenceError("Property \"" + property + "\" does not exist.");
+								    }
+  							}
+			});
+
+			proxy.name // "张三"
+			proxy.age // 抛出一个错误
+		}
+		
+		function fetch(url){
+			return {
+							targetUrl: url, 
+							text:function() {
+								return { match: function() {
+																	return 'ddd';
+																}
+											 }
+							}
+		 };
+		}
+		async function getTitle(url) {
+	  	let response = await fetch(url);
+	  	let html = await response.text();
+	  	return html.match();
+		}
+		
+		function getTitle1(url) {
+	  	let response = fetch(url);
+	  	let html = response.text();
+	  	return html.match();
+		}
+		
+		function test2() {
+			console.log('start');
+			getTitle('https://tc39.github.io/ecma262/').then(console.log);
+			
+			//let a = getTitle1('https://tc39.github.io/ecma262/');
+			//console.log(a);
+			//console.log('ccc');
+			console.log('end');
+		}
+		//========promise
+		let promise = new Promise(function(resolve, reject) {
+  		console.log('Promise');
+  		resolve();
+		});
+
+		promise.then(function() {
+  		console.log('resolved.');
+		});
+
+		console.log('Hi!');
+		
+		function timeout(ms) {
+  		return new Promise((resolve, reject) => {
+    			setTimeout(resolve, ms, 'done');
+  		});
+		}
+
+		timeout(100).then((value) => {
+  		console.log(value);
+		});
+		
+		
+		</script>
+
+	</head>
+	<body>
+		<input type="button" value="test" onclick="test1();" />
+		<input type="button" value="test2" onclick="test2()" />
+		<input type="button" value="symbol" onclick="symbolTest()" />
+		<input type="button" value="SymbolIterator" onclick="SymbolIterator()" />
+		<input type="button" value="testReflect" onclick="testReflect()" />
+		<input type="button" value="testApply" onclick="testApply()" />
+		<input type="button" value="testPrototype" onclick="testPrototype()" />
+		<input type="button" value="testperson" onclick="testperson()" />
+		<input type="button" value="testPeople" onclick="testPeople()" />
+		<input type="button" value="testObjectIs" onclick="testObjectIs()" />
+		<input type="button" value="testasync" onclick="testasync()" />
+		<input type="button" value="testone2FiveInAsync" onclick="testone2FiveInAsync()" />
+		
+		<div id="nodes"/>
+	</body>
+</html>

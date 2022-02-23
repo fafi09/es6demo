@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<title>test</title>
+		<script type="text/javascript">
+			var interval = null;
+			window.onload = function() {
+				alert('load');
+				var d1 = document.getElementById("div1");
+				if(d1) {
+					interval = window.setInterval(remove, 1000);
+					alert('create');
+				}
+			}
+			function remove() {
+				if(interval) {
+				}
+			}
+			function btn_click() {
+				var ipt = document.getElementById("name");
+				alert(ipt.getAttribute("value"));
+				alert(ipt.value);
+			}
+ 		</script>
+	</head>
+	<body>
+		<div id="div1"/>
+		<input type="button" value="submit" onClick="btn_click()" disabled="false"/>
+		<input id="name" type="text" value="bob"/>
+		<div>npm install -g cnpm --registry=https://registry.npm.taobao.org
+			运行完上条命令之后直接 cnpm install 就ok了啦 ！</div>
+	</body>
+</html>
