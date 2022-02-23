@@ -1,0 +1,529 @@
+# es6
+## let
+- let只在块级作用域内有效
+
+## const
+- 也只在块级作用域有效
+- 声明后必须赋值，之后不允许赋值。  
+``` const i = 3.14 ```
+
+## 解构赋值
+### 基本用法
+- ES6 允许按照一定模式，从数组和对象中提取值，对变量进行赋值，这被称为解构（Destructuring）。
+- 本质上，这种写法属于“模式匹配”，只要等号两边的模式相同，左边的变量就会被赋予对应的值
+- 如果解构不成功，变量的值就等于undefined。
+- 另一种情况是不完全解构，即等号左边的模式，只匹配一部分的等号右边的数组。这种情况下，解构依然可以成功。
+- 如果等号的右边不是数组（或者严格地说，不是可遍历的结构，参见《Iterator》一章），那么将会报错。
+- 只要某种数据结构具有 Iterator 接口，都可以采用数组形式的解构赋值。
+- fibs是一个 Generator 函数（参见《Generator 函数》一章），原生具有 Iterator 接口。解构赋值会依次从这个接口获取值。
+### 默认值
+- 解构赋值允许指定默认值。  ES6 内部使用严格相等运算符（===），判断一个位置是否有值。所以，只有当一个数组成员严格等于undefined，默认值才会生效。
+如果一个数组成员是null，默认值就不会生效，因为null不严格等于undefined。
+
+	```
+	let [foo = true] = [];  
+	foo // true  
+
+	let [x, y = 'b'] = ['a']; // x='a', y='b'  
+	let [x, y = 'b'] = ['a', undefined]; // x='a', y='b'  
+	```
+
+### 用途   
+- 遍历map
+	```
+	const map = new Map();
+	map.set('first', 'hello');
+	map.set('second', 'world');
+
+	for (let [key, value] of map) {
+	  console.log(key + " is " + value);
+	}
+	// first is hello
+	// second is world
+	```
+## 字符串扩展
+- 字符串遍历器接口            
+	```
+	for (let codePoint of 'foo') {
+	  console.log(codePoint)
+	}
+	// "f"
+	// "o"
+	// "o"
+	```
+- 模板字符串-模板字符串（template string）是增强版的字符串，用反引号（`）标识。它可以当作普通字符串使用，也可以用来定义多行字符串，或者在字符串中嵌入变量。
+	```
+	$('#result').append(`
+	  There are <b>${basket.count}</b> items
+	   in your basket, <em>${basket.onSale}</em>
+	  are on sale!
+	`);
+	```
+## 函数扩展
+- 函数参数默认值
+	```
+	function log(x, y = 'World') {
+	  console.log(x, y);
+	}
+
+	```
+- 与解构赋值默认值结合使用
+	```
+	function foo({x, y = 5}) {
+	  console.log(x, y);
+	}
+	```
+	
+- 函数的 length 属性 
+  指定了默认值以后，函数的length属性，将返回没有指定默认值的参数个数。也就是说，指定了默认值后，length属性将失真。
+  
+	```
+	(function (a) {}).length // 1
+	(function (a = 5) {}).length // 0
+	(function (a, b, c = 5) {}).length // 2
+	```
+
+- rest 参数
+	```
+	function add(...values) {
+	  let sum = 0;
+
+	  for (var val of values) {
+		sum += val;
+	  }
+
+	  return sum;
+	}
+
+	add(2, 5, 3) // 10
+	```
+- 严格模式
+ES2016 做了一点修改，规定只要函数参数使用了默认值、解构赋值、或者扩展运算符，那么函数内部就不能显式设定为严格模式，否则会报错。
+
+- 函数的name属性，返回该函数的函数名。
+- 箭头函数
+>使用注意点
+>箭头函数有几个使用注意点。
+
+>（1）箭头函数没有自己的this对象（详见下文）。
+
+>（2）不可以当作构造函数，也就是说，不可以对箭头函数使用new命令，否则会抛出一个错误。
+
+>（3）不可以使用arguments对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替。
+
+>（4）不可以使用yield命令，因此箭头函数不能用作 Generator 函数。
+
+> 上面四点中，最重要的是第一点。对于普通函数来说，内部的this指向函数运行时所在的对象，但是这一点对箭头函数不成立。它没有自己的this对象，内部的this就是定义时上层作用域中的this。也就是说，箭头函数内部的this指向是固定的，相比之下，普通函数的this指向是可变的。
+
+
+## promise
+### Promise 执行顺序  
+- Promise 新建后立即执行，所以首先输出的是Promise。  
+  然后，then方法指定的回调函数，将在当前脚本所有同步任务执行完才会执行，  
+  所以resolved最后输出。
+	```
+	let promise = new Promise(function(resolve, reject) {
+	  console.log('Promise');
+	  resolve();
+	});
+
+	promise.then(function() {
+	  console.log('resolved.');
+	});
+
+	console.log('Hi!');
+
+	// Promise
+	// Hi!
+	// resolved
+	```
+### 回调函数参数
+- 如果调用resolve函数和reject函数时带有参数，那么它们的参数会被传递给回调函数。  
+  reject函数的参数通常是Error对象的实例，表示抛出的错误；  
+  resolve函数的参数除了正常的值以外，还可能是另一个 Promise 实例，
+	```
+	const getJSON = function(url) {
+	  const promise = new Promise(function(resolve, reject){
+		const handler = function() {
+		  if (this.readyState !== 4) {
+			return;
+		  }
+		  if (this.status === 200) {
+			resolve(this.response);
+		  } else {
+			reject(new Error(this.statusText));
+		  }
+		};
+		const client = new XMLHttpRequest();
+		client.open("GET", url);
+		client.onreadystatechange = handler;
+		client.responseType = "json";
+		client.setRequestHeader("Accept", "application/json");
+		client.send();
+
+	  });
+
+	  return promise;
+	};
+
+	getJSON("/posts.json").then(function(json) {
+	  console.log('Contents: ' + json);
+	}, function(error) {
+	  console.error('出错了', error);
+	});
+	```
+- 参数为promise实例  p1和p2都是 Promise 的实例，但是p2的resolve方法将p1作为参数，  
+  即一个异步操作的结果是返回另一个异步操作。  
+  注意，这时p1的状态就会传递给p2，也就是说，p1的状态决定了p2的状态。  
+  如果p1的状态是pending，那么p2的回调函数就会等待p1的状态改变；  
+  如果p1的状态已经是resolved或者rejected，那么p2的回调函数将会立刻执行。
+	```
+	const p1 = new Promise(function (resolve, reject) {
+	  // ...
+	});
+
+	const p2 = new Promise(function (resolve, reject) {
+	  // ...
+	  resolve(p1);
+	})
+	```
+### 调用resolve或reject并不会终结 Promise 的参数函数的执行。
+- 调用resolve(1)以后，后面的console.log(2)还是会执行，并且会首先打印出来。  
+  这是因为立即 resolved 的 Promise 是在本轮事件循环的末尾执行，总是晚于本轮循环的同步任务。
+  调用resolve或reject以后，Promise 的使命就完成了，后继操作应该放到then方法里面，  
+  而不应该直接写在resolve或reject的后面。所以，最好在它们前面加上return语句，这样就不会有意外。
+	```
+	new Promise((resolve, reject) => {
+	  resolve(1);
+	  console.log(2);
+	}).then(r => {
+	  console.log(r);
+	});
+	// 2
+	// 1
+	```
+### 如果 Promise 状态已经变成resolved，再抛出错误是无效的。   
+```  
+const promise = new Promise(function(resolve, reject) {
+  resolve('ok');
+  throw new Error('test');
+});
+promise
+  .then(function(value) { console.log(value) })
+  .catch(function(error) { console.log(error) });
+```  
+<u>上面代码中，Promise 在resolve语句后面，再抛出错误，不会被捕获，等于没有抛出。因为 Promise 的状态一旦改变，就永久保持该状态，不会再变了。</u>
+### Promise.prototype.then() 
+- then方法的第一个参数是resolved状态的回调函数，第二个参数是rejected状态的回调函数，  
+  它们都是可选的。then方法返回的是一个新的Promise实例（注意，不是原来那个Promise实例）
+- 依次指定了两个回调函数。  
+  第一个回调函数完成以后，会将返回结果作为参数，传入第二个回调函数。
+	```
+	getJSON("/posts.json").then(function(json) {
+	  return json.post;
+	}).then(function(post) {
+	  // ...
+	});
+	```
+- 采用链式的then，可以指定一组按照次序调用的回调函数。  
+  这时，前一个回调函数，有可能返回的还是一个Promise对象（即有异步操作），  
+  这时后一个回调函数，就会等待该Promise对象的状态发生变化，才会被调用。  
+  第一个then方法指定的回调函数，返回的是另一个Promise对象。  
+  这时，第二个then方法指定的回调函数，就会等待这个新的Promise对象状态发生变化。  
+  如果变为resolved，就调用第一个回调函数，如果状态变为rejected，就调用第二个回调函数。
+	```
+	getJSON("/post/1.json").then(function(post) {
+	  return getJSON(post.commentURL);
+	}).then(function (comments) {
+	  console.log("resolved: ", comments);
+	}, function (err){
+	  console.log("rejected: ", err);
+	});
+	```
+  
+### Promise.prototype.catch()方法是.then(null, rejection)或.then(undefined, rejection)的别名，用于指定发生错误时的回调函数
+- promise抛出一个错误，就被catch()方法指定的回调函数捕获。注意，上面的写法与下面两种写法是等价的
+	```
+	// 写法一
+	const promise = new Promise(function(resolve, reject) {
+	  try {
+		throw new Error('test');
+	  } catch(e) {
+		reject(e);
+	  }
+	});
+	promise.catch(function(error) {
+	  console.log(error);
+	});
+
+	// 写法二
+	const promise = new Promise(function(resolve, reject) {
+	  reject(new Error('test'));
+	});
+	promise.catch(function(error) {
+	  console.log(error);
+	});
+	```
+- 如果 Promise 状态已经变成resolved，再抛出错误是无效的。  romise 在resolve语句后面，再抛出错误，不会被捕获，等于没有抛出。  
+  因为 Promise 的状态一旦改变，就永久保持该状态，不会再变了。
+
+	```
+	const promise = new Promise(function(resolve, reject) {
+	  resolve('ok');
+	  throw new Error('test');
+	});
+	promise
+	  .then(function(value) { console.log(value) })
+	  .catch(function(error) { console.log(error) });
+	// ok
+	```
+- Promise 对象的错误具有“冒泡”性质，会一直向后传递，直到被捕获为止。也就是说，错误总是会被下一个catch语句捕获。
+- 第二种写法要好于第一种写法，理由是第二种写法可以捕获前面then方法执行中的错误，也更接近同步的写法（try/catch）。因此，建议总是使用catch()方法，而不使用then()方法的第二个参数。  
+
+	```
+	// bad
+	promise
+	  .then(function(data) {
+		// success
+	  }, function(err) {
+		// error
+	  });
+
+	// good
+	promise
+	  .then(function(data) { //cb
+		// success
+	  })
+	  .catch(function(err) {
+		// error
+	  });
+	```    
+
+- 跟传统的try/catch代码块不同的是，如果没有使用catch()方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。  
+  上面代码中，someAsyncThing()函数产生的 Promise 对象，内部有语法错误。浏览器运行到这一行，会打印出错误提示ReferenceError: x is not defined，  
+  但是不会退出进程、终止脚本执行，2 秒之后还是会输出123。  
+  这就是说，Promise 内部的错误不会影响到 Promise 外部的代码，  
+  通俗的说法就是“Promise 会吃掉错误”。
+	```
+	const someAsyncThing = function() {
+	  return new Promise(function(resolve, reject) {
+		// 下面一行会报错，因为x没有声明
+		resolve(x + 2);
+	  });
+	};
+
+	someAsyncThing().then(function() {
+	  console.log('everything is great');
+	});
+
+	setTimeout(() => { console.log(123) }, 2000);
+	// Uncaught (in promise) ReferenceError: x is not defined
+	// 123
+	```  
+- 上面代码中，Promise 指定在下一轮“事件循环”再抛出错误。到了那个时候，Promise 的运行已经结束了，  
+  所以这个错误是在 Promise 函数体外抛出的，会冒泡到最外层，成了未捕获的错误。
+	```
+	const promise = new Promise(function (resolve, reject) {
+	  resolve('ok');
+	  setTimeout(function () { throw new Error('test') }, 0)
+	});
+	promise.then(function (value) { console.log(value) });
+	// ok
+	// Uncaught Error: test
+	```
+- catch()方法之中，还能再抛出错误。
+	```
+	someAsyncThing().then(function() {
+	  return someOtherAsyncThing();
+	}).catch(function(error) {
+	  console.log('oh no', error);
+	  // 下面一行会报错，因为y没有声明
+	  y + 2;
+	}).catch(function(error) {
+	  console.log('carry on', error);
+	});
+	// oh no [ReferenceError: x is not defined]
+	// carry on [ReferenceError: y is not defined]
+	```
+### Promise.prototype.finally()
+- finally()方法用于指定不管 Promise 对象最后状态如何，都会执行的操作。  
+  该方法是 ES2018 引入标准的。
+	```
+	promise
+	.then(result => {···})
+	.catch(error => {···})
+	.finally(() => {···});
+	```  
+- finally方法的回调函数不接受任何参数，这意味着没有办法知道，前面的 Promise 状态到底是fulfilled还是rejected。  
+  这表明，finally方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果。  
+- finally本质上是then方法的特例。  
+
+### Promise.all()
+- 用于将多个 Promise 实例，包装成一个新的 Promise 实例。  
+### Promise.race()
+- 同样是将多个 Promise 实例，包装成一个新的 Promise 实例。  
+### Promise.allSettled() 
+- 方法接受一个数组作为参数，数组的每个成员都是一个 Promise 对象，并返回一个新的 Promise 对象。  
+  只有等到参数数组的所有 Promise 对象都发生状态变更（不管是fulfilled还是rejected），  
+  返回的 Promise 对象才会发生状态变更。  
+  上面示例中，数组promises包含了三个请求，只有等到这三个请求都结束了（不管请求成功还是失败），  
+  removeLoadingIndicator()才会执行。
+  该方法返回的新的 Promise 实例，一旦发生状态变更，状态总是fulfilled，不会变成rejected。状态变成fulfilled后，它的回调函数会接收到一个数组作为参数，该数组的每个成员对应前面数组的每个 Promise 对象。
+	```
+	const promises = [
+	  fetch('/api-1'),
+	  fetch('/api-2'),
+	  fetch('/api-3'),
+	];
+
+	await Promise.allSettled(promises);
+	removeLoadingIndicator();
+	```
+### Promise.any()
+### Promise.resolve()
+- 有时需要将现有对象转为 Promise 对象，Promise.resolve()方法就起到这个作用。]
+	```
+	Promise.resolve('foo')
+	// 等价于
+	new Promise(resolve => resolve('foo'))
+	```
+	1. 参数是一个 Promise 实例,那么Promise.resolve将不做任何修改、原封不动地返回这个实例。
+	2. 参数是一个thenable对象,方法会将这个对象转为 Promise 对象，然后就立即执行thenable对象的then()方法。
+	3. 参数不是具有then()方法的对象，或根本就不是对象 如果参数是一个原始值，或者是一个不具有then()方法的对象，则Promise.resolve()方法返回一个新的 Promise 对象，状态为resolved。
+	```
+	const p = Promise.resolve('Hello');
+
+	p.then(function (s) {
+	  console.log(s)
+	});
+	// Hello
+	```  
+	4. 不带有任何参数,Promise.resolve()方法允许调用时不带参数，直接返回一个resolved状态的 Promise 对象。  
+	   所以，如果希望得到一个 Promise 对象，比较方便的方法就是直接调用Promise.resolve()方法。
+	   ```
+	   const p = Promise.resolve();
+
+		p.then(function () {
+		  // ...
+		});
+	   ```
+### Promise.reject()
+- Promise.reject(reason)方法也会返回一个新的 Promise 实例，该实例的状态为rejected。
+## Symbol
+### 概念  
+- ES6 引入了一种新的原始数据类型Symbol，表示独一无二的值 保证每个属性的名字都是独一无二
+- Symbol函数前不能使用new命令，否则会报错。这是因为生成的 Symbol 是一个原始类型的值，不是对象。  
+  也就是说，由于 Symbol 值不是对象，所以不能添加属性。基本上，它是一种类似于字符串的数据类型。  
+- 如果 Symbol 的参数是一个对象，就会调用该对象的toString方法，将其转为字符串，然后才生成一个 Symbol 值。
+	```
+	const obj = {
+	  toString() {
+		return 'abc';
+	  }
+	};
+	const sym = Symbol(obj);
+	sym // Symbol(abc)
+	```  
+- Symbol 值可以显式转为字符串。Symbol 值也可以转为布尔值，但是不能转为数值。
+  String(sym)  Boolean(sym)  
+### 作为属性名的 Symbol  
+- 不同写法  
+	```
+	let mySymbol = Symbol();
+
+	// 第一种写法
+	let a = {};
+	a[mySymbol] = 'Hello!';
+
+	// 第二种写法
+	let a = {
+	  [mySymbol]: 'Hello!'
+	};
+
+	// 第三种写法
+	let a = {};
+	Object.defineProperty(a, mySymbol, { value: 'Hello!' });
+
+	// 以上写法都得到同样结果
+	a[mySymbol] // "Hello!"
+	```  
+- Symbol 值作为对象属性名时，不能用点运算符。  
+  因为点运算符后面总是字符串，所以不会读取mySymbol作为标识名所指代的那个值，  
+  导致a的属性名实际上是一个字符串，而不是一个 Symbol 值。  
+  在对象的内部，使用 Symbol 值定义属性时，Symbol 值必须放在方括号之中。  
+  如果s不放在方括号中，该属性的键名就是字符串s，而不是s所代表的那个 Symbol 值。
+	```
+	const mySymbol = Symbol();
+	const a = {};
+
+	a.mySymbol = 'Hello!';
+	a[mySymbol] // undefined
+	a['mySymbol'] // "Hello!"
+	```  
+- 希望重新使用同一个 Symbol 值，Symbol.for()方法可以做到这一点
+	```
+	Symbol.for("bar") === Symbol.for("bar")
+	// true
+
+	Symbol("bar") === Symbol("bar")
+	// false
+	```  
+- Symbol.keyFor()方法返回一个已登记的 Symbol 类型值的key。
+	```
+	let s1 = Symbol.for("foo");
+	Symbol.keyFor(s1) // "foo"
+
+	let s2 = Symbol("foo");
+	Symbol.keyFor(s2) // undefined
+	```  
+
+- Symbol.iterator  
+```
+const myIterable = {};
+myIterable[Symbol.iterator] = function* () {
+  yield 1;
+  yield 2;
+  yield 3;
+};
+
+[...myIterable] // [1, 2, 3]
+
+class Collection {
+  *[Symbol.iterator]() {
+    let i = 0;
+    while(this[i] !== undefined) {
+      yield this[i];
+      ++i;
+    }
+  }
+}
+
+let myCollection = new Collection();
+myCollection[0] = 1;
+myCollection[1] = 2;
+
+for(let value of myCollection) {
+  console.log(value);
+}
+```  
+
+### async函数
+#### await  
+ - 任何一个await语句后面的 Promise 对象变为reject状态，那么整个async函数都会中断执行  
+ 
+# webpack
+## 问题
+1. webpack时ERROR in Entry module not found: Error: Can't resolve './src' in XXX
+- 原因：
+  自从 v4.0.0 版本开始，webpack 不再需要配置文件”。
+  没有配置文件，webpack 仅在存在 scr/index.js 文件时才有效。这个信息（使用粗体）在文档中明确标明。     
+
+
+# springboot sqldp
+## 全局异常捕获RestControllerAdvice来捕获全局异常
+- RestControllerAdvice会自动帮助catch,并匹配相应的ExceptionHandler,然后重新封装异常信息，返回值，统一格式返回给前端。
+- @ControllerAdvice 和 @RestControllerAdvice都是对Controller进行增强的，可以全局捕获spring mvc抛的异常。
+   RestControllerAdvice = ControllerAdvice + ResponseBody
+- @ControllerAdvice 注解，可以用于定义@ExceptionHandler、@InitBinder、@ModelAttribute，并应用到所有@RequestMapping中
+- ControllerAdvice如何被Spring加载并对外暴露？WebMvcConfigurationSupport#handlerExceptionResolver()
+- ControllerAdvice如何被Spring消费并处理异常？DispatcherServlet#processHandlerException
